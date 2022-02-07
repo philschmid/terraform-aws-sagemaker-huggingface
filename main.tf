@@ -5,7 +5,7 @@
 locals {
   framework_version = var.pytorch_version != null ? var.pytorch_version : var.tensorflow_version
   repository_name   = var.pytorch_version != null ? "huggingface-pytorch-inference" : "huggingface-tensorflow-inference"
-  device            = length(regexall("^[g|p{1,3}\\.$]", var.instance_type)) > 0 ? "gpu" : "cpu"
+  device            = length(regexall("^ml\\.[g|p{1,3}\\.$]", var.instance_type)) > 0 ? "gpu" : "cpu"
   image_key         = "${local.framework_version}-${local.device}"
   pytorch_image_tag = {
     "1.7.1-gpu" = "1.7.1-transformers${var.transformers_version}-gpu-py36-cu110-ubuntu18.04"
@@ -38,10 +38,49 @@ data "aws_sagemaker_prebuilt_ecr_image" "deploy_image" {
 # ------------------------------------------------------------------------------
 
 resource "aws_iam_role" "new_role" {
-  count              = var.sagemaker_execution_role == null ? 1 : 0 # Creates IAM role if not provided
-  name               = "${var.name_prefix}-sagemaker-execution-role"
-  assume_role_policy = file("${path.module}/iam_policy.json")
-  tags               = var.tags
+  count = var.sagemaker_execution_role == null ? 1 : 0 # Creates IAM role if not provided
+  name  = "${var.name_prefix}-sagemaker-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "sagemaker.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  inline_policy {
+    name = "terraform-inferences-policy"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect = "Allow",
+          Action = [
+            "cloudwatch:PutMetricData",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents",
+            "logs:CreateLogGroup",
+            "logs:DescribeLogStreams",
+            "s3:GetObject",
+            "s3:ListBucket",
+            "ecr:GetAuthorizationToken",
+            "ecr:BatchCheckLayerAvailability",
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage"
+          ],
+          Resource = "*"
+        }
+      ]
+    })
+
+  }
+
+  tags = var.tags
 }
 
 data "aws_iam_role" "get_role" {
@@ -59,7 +98,7 @@ locals {
 
 resource "aws_sagemaker_model" "model_with_model_artifact" {
   count              = var.model_data != null && var.hf_model_id == null ? 1 : 0
-  name               = "${var.name_prefix}-sagemaker-model"
+  name               = "${var.name_prefix}-model"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -98,7 +137,7 @@ locals {
 # ------------------------------------------------------------------------------
 
 resource "aws_sagemaker_endpoint_configuration" "huggingface" {
-  name = "${var.name_prefix}-sagemaker-endpoint-configuration"
+  name = "${var.name_prefix}-endpoint-configuration"
   tags = var.tags
 
 
@@ -111,7 +150,7 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface" {
 }
 
 resource "aws_sagemaker_endpoint" "huggingface" {
-  name = "${var.name_prefix}-sagemaker-endpoint"
+  name = "${var.name_prefix}-endpoint"
   tags = var.tags
 
   endpoint_config_name = aws_sagemaker_endpoint_configuration.huggingface.name

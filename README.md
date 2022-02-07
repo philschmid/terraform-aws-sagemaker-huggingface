@@ -1,25 +1,30 @@
 # Hugging Face Inference SageMaker Module
 
-This Terraform module enables easy deployment of a [Hugging Face Transformer models](hf.co/models) to [Amazon SageMaker](https://aws.amazon.com/de/sagemaker/) real-time endpoints.
+Terraform module for easy deployment of a [Hugging Face Transformer models](hf.co/models) to [Amazon SageMaker](https://aws.amazon.com/de/sagemaker/) real-time endpoints. This module will create all the necessary resources to deploy a model to Amazon SageMaker including IAM roles, if not provided, SageMaker Model, SageMaker Endpoint Configuration, SageMaker endpoint.
 
+With this module you can deploy [Hugging Face Transformer](hf.co/models) directly from the [Model Hub](hf.co/models) or from Amazon S3 to Amazon SageMaker for PyTorch and Tensorflow based models.
 
 ## Usage
 
 ```hcl
-module "huggingface_sagemaker" {
-  source = "../../"
-  name_prefix              = "test"
+module "sagemaker-huggingface" {
+  source  = "philschmid/sagemaker-huggingface/aws"
+  version = "0.2.0"
+  name_prefix              = "distilbert"
   pytorch_version          = "1.9.1"
   transformers_version     = "4.12.3"
   instance_type            = "ml.g4dn.xlarge"
   instance_count           = 1 # default is 1
-  sagemaker_execution_role = "sagemaker_execution_role"
   hf_model_id              = "distilbert-base-uncased-finetuned-sst-2-english"
   hf_task                  = "text-classification"
 }
 ```
-- Update the [basic](examples/simple) example.
-- Update the [e2e tests](test/).
+
+**examples:**
+* [Deploy Model from hf.co/models](./examples/deploy_from_hub/main.tf)
+* [Deploy Model from Amazon S3](./examples/deploy_from_s3/main.tf)
+* [Tensorflow example](./examples/tensorflow_example/main.tf)
+* [Deploy Model with existing IAM role](./examples/use_existing_iam_role/main.tf)
 
 ## Requirements
 
@@ -32,6 +37,10 @@ module "huggingface_sagemaker" {
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 3.74.0 |
+
+## Modules
+
+No modules.
 
 ## Resources
 
@@ -67,17 +76,13 @@ module "huggingface_sagemaker" {
 | Name | Description |
 |------|-------------|
 | <a name="output_iam_role"></a> [iam\_role](#output\_iam\_role) | IAM role used in the endpoint |
-| <a name="output_sagemaker_endpoint"></a> [sagemaker\_endpoint](#output\_sagemaker\_endpoint) | SageMaker endpoint |
-| <a name="output_sagemaker_endpoint_configuration"></a> [sagemaker\_endpoint\_configuration](#output\_sagemaker\_endpoint\_configuration) | SageMaker endpoint configuration |
-| <a name="output_sagemaker_model"></a> [sagemaker\_model](#output\_sagemaker\_model) | SageMaker Model used |
+| <a name="output_sagemaker_endpoint"></a> [sagemaker\_endpoint](#output\_sagemaker\_endpoint) | created Amazon SageMaker endpoint resource |
+| <a name="output_sagemaker_endpoint_configuration"></a> [sagemaker\_endpoint\_configuration](#output\_sagemaker\_endpoint\_configuration) | created Amazon SageMaker endpoint configuration resource |
+| <a name="output_sagemaker_endpoint_name"></a> [sagemaker\_endpoint\_name](#output\_sagemaker\_endpoint\_name) | Name of the created Amazon SageMaker endpoint, used for invoking the endpoint, with sdks |
+| <a name="output_sagemaker_model"></a> [sagemaker\_model](#output\_sagemaker\_model) | created Amazon SageMaker model resource |
 | <a name="output_tags"></a> [tags](#output\_tags) | n/a |
 | <a name="output_used_container"></a> [used\_container](#output\_used\_container) | Used container for creating the endpoint |
 
-
-
-## Authors
-
-Inspired by [Trussworks](https://github.com/trussworks/terraform-module-template).
 
 ## License
 

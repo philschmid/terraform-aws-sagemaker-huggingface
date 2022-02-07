@@ -12,18 +12,23 @@ output "iam_role" {
 }
 
 output "sagemaker_model" {
-  description = "SageMaker Model used"
+  description = "created Amazon SageMaker model resource"
   value       = local.sagemaker_model
 }
 
 output "sagemaker_endpoint_configuration" {
-  description = "SageMaker endpoint configuration"
+  description = "created Amazon SageMaker endpoint configuration resource"
   value       = aws_sagemaker_endpoint_configuration.huggingface
 }
 
 output "sagemaker_endpoint" {
-  description = "SageMaker endpoint"
+  description = "created Amazon SageMaker endpoint resource"
   value       = aws_sagemaker_endpoint.huggingface
+}
+
+output "sagemaker_endpoint_name" {
+  description = "Name of the created Amazon SageMaker endpoint, used for invoking the endpoint, with sdks"
+  value       = aws_sagemaker_endpoint.huggingface.name
 }
 
 
