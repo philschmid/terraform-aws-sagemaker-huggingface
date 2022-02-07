@@ -8,8 +8,8 @@ With this module you can deploy [Hugging Face Transformer](hf.co/models) directl
 
 ```hcl
 module "sagemaker-huggingface" {
-  source  = "philschmid/sagemaker-huggingface/aws"
-  version = "0.2.0"
+  source                   = "philschmid/sagemaker-huggingface/aws"
+  version                  = "0.2.0"
   name_prefix              = "distilbert"
   pytorch_version          = "1.9.1"
   transformers_version     = "4.12.3"
