@@ -1,0 +1,74 @@
+# ------------------------------------------------------------------------------
+# Variables
+# ------------------------------------------------------------------------------
+variable "name_prefix" {
+  description = "A prefix used for naming resources."
+  type        = string
+}
+
+variable "transformers_version" {
+  description = "Transformers version you want to use for executing your model training code. Defaults to None. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview)"
+  type        = string
+}
+
+variable "pytorch_version" {
+  description = "PyTorch version you want to use for executing your inference code. Defaults to `None`. Required unless `tensorflow_version` is provided. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview)"
+  type        = string
+  default     = null
+}
+
+variable "tensorflow_version" {
+  description = "TensorFlow version you want to use for executing your inference code. Defaults to `None`. Required unless `pytorch_version` is provided. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview)"
+  type        = string
+  default     = null
+}
+
+variable "image_tag" {
+  description = "The image tag you want to use for the container you want to use. Defaults to `None`. The module tries to derive the `image_tag` from the `pytorch_version`, `tensorflow_version` & `instance_type`. If you want to override this, you can provide the `image_tag` as a variable."
+  type        = string
+  default     = null
+}
+
+variable "instance_type" {
+  description = "The EC2 instance type to deploy this Model to. For example, `ml.p2.xlarge`."
+  type        = string
+  default     = null
+}
+
+variable "instance_count" {
+  description = "The initial number of instances to run in the Endpoint created from this Model. Defaults to 1."
+  type        = number
+  default     = 1
+}
+
+
+variable "hf_model_id" {
+  description = "The HF_MODEL_ID environment variable defines the model id, which will be automatically loaded from [hf.co/models](https://huggingface.co/models) when creating or SageMaker Endpoint."
+  type        = string
+  default     = null
+}
+
+variable "hf_task" {
+  description = "The HF_TASK environment variable defines the task for the used 🤗 Transformers pipeline. A full list of tasks can be find [here](https://huggingface.co/transformers/main_classes/pipelines.html)."
+  type        = string
+}
+
+variable "model_data" {
+  description = "The S3 location of a SageMaker model data .tar.gz file (default: None). Not needed when using `hf_model_id`."
+  type        = string
+  default     = null
+
+}
+
+variable "sagemaker_execution_role" {
+  description = "An AWS IAM role Name to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role if it needs to access some AWS resources. If not specified, the role will created with with the `CreateModel` permissions from the [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html#sagemaker-roles-createmodel-perms)"
+  type        = string
+  default     = null
+}
+
+
+variable "tags" {
+  description = "A map of tags (key-value pairs) passed to resources."
+  type        = map(string)
+  default     = {}
+}
