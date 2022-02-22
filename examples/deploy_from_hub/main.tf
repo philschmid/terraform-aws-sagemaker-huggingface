@@ -2,6 +2,11 @@
 # Example Deploy from HuggingFace Hub
 # ---------------------------------------------------------------------------------------------------------------------
 
+provider "aws" {
+  region  = "us-east-1"
+  profile = "hf-sm"
+}
+
 module "huggingface_sagemaker" {
   source = "../../"
   name_prefix              = "deploy-hub"
