@@ -1,7 +1,7 @@
 # How to publish a new release
 
 1. generate new docs
-2. change example + version in `READEME.md`
+2. change example + version in `README.md`
 3. create new Github Release
 4. Update package in registry
 
