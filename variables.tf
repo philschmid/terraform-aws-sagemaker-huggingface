@@ -79,6 +79,24 @@ variable "sagemaker_execution_role" {
   default     = null
 }
 
+variable "autoscaling" {
+  description = "A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required keys are `max_capacity` and `scaling_target_invocations` "
+  type = object({
+    min_capacity               = number,
+    max_capacity               = number,
+    scaling_target_invocations = number,
+    scale_in_cooldown          = number,
+    scale_out_cooldown         = number,
+  })
+
+  default = {
+    min_capacity               = 1
+    max_capacity               = null
+    scaling_target_invocations = null
+    scale_in_cooldown          = 300
+    scale_out_cooldown         = 60
+  }
+}
 
 variable "tags" {
   description = "A map of tags (key-value pairs) passed to resources."

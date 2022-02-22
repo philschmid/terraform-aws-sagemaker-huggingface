@@ -27,11 +27,11 @@ locals {
 
 # random lowercase string used for naming
 resource "random_string" "ressource_id" {
-  length    = 8
-  lower     = true
-  special   = false
-  upper     = false
-  number    = false
+  length  = 8
+  lower   = true
+  special = false
+  upper   = false
+  number  = false
 }
 
 # ------------------------------------------------------------------------------
@@ -156,7 +156,7 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface" {
 
 
   production_variants {
-    variant_name           = "allTrafic"
+    variant_name           = "AllTraffic"
     model_name             = local.sagemaker_model.name
     initial_instance_count = var.instance_count
     instance_type          = var.instance_type
@@ -168,4 +168,40 @@ resource "aws_sagemaker_endpoint" "huggingface" {
   tags = var.tags
 
   endpoint_config_name = aws_sagemaker_endpoint_configuration.huggingface.name
+}
+
+# ------------------------------------------------------------------------------
+# AutoScaling configuration
+# ------------------------------------------------------------------------------
+
+
+locals {
+  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.scaling_target_invocations != null ? 1 : 0
+}
+
+resource "aws_appautoscaling_target" "sagemaker_target" {
+  count              = local.use_autoscaling
+  min_capacity       = var.autoscaling.min_capacity
+  max_capacity       = var.autoscaling.max_capacity
+  resource_id        = "endpoint/${aws_sagemaker_endpoint.huggingface.name}/variant/AllTraffic"
+  scalable_dimension = "sagemaker:variant:DesiredInstanceCount"
+  service_namespace  = "sagemaker"
+}
+
+resource "aws_appautoscaling_policy" "sagemaker_policy" {
+  count              = local.use_autoscaling
+  name               = "${var.name_prefix}-scaling-target-${random_string.ressource_id.result}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.sagemaker_target[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.sagemaker_target[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.sagemaker_target[0].service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
+    }
+    target_value       = var.autoscaling.scaling_target_invocations
+    scale_in_cooldown  = var.autoscaling.scale_in_cooldown
+    scale_out_cooldown = var.autoscaling.scale_out_cooldown
+  }
 }
