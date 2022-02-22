@@ -53,6 +53,19 @@ variable "hf_task" {
   type        = string
 }
 
+variable "hf_api_token" {
+  description = "The HF_API_TOKEN environment variable defines the your Hugging Face authorization token. The HF_API_TOKEN is used as a HTTP bearer authorization for remote files, like private models. You can find your token at your settings page."
+  type        = string
+  default     = null
+}
+
+variable "hf_model_revision" {
+  description = "The HF_MODEL_REVISION is an extension to HF_MODEL_ID and allows you to define/pin a revision of the model to make sure you always load the same model on your SageMaker Endpoint."
+  type        = string
+  default     = null
+}
+
+
 variable "model_data" {
   description = "The S3 location of a SageMaker model data .tar.gz file (default: None). Not needed when using `hf_model_id`."
   type        = string

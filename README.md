@@ -8,24 +8,24 @@ With this module you can deploy [Hugging Face Transformer](hf.co/models) directl
 
 ```hcl
 module "sagemaker-huggingface" {
-  source  = "philschmid/sagemaker-huggingface/aws"
-  version = "0.2.0"
-  name_prefix              = "distilbert"
-  pytorch_version          = "1.9.1"
-  transformers_version     = "4.12.3"
-  instance_type            = "ml.g4dn.xlarge"
-  instance_count           = 1 # default is 1
-  hf_model_id              = "distilbert-base-uncased-finetuned-sst-2-english"
-  hf_task                  = "text-classification"
+  source               = "philschmid/sagemaker-huggingface/aws"
+  version              = "0.3.0"
+  name_prefix          = "distilbert"
+  pytorch_version      = "1.9.1"
+  transformers_version = "4.12.3"
+  instance_type        = "ml.g4dn.xlarge"
+  instance_count       = 1 # default is 1
+  hf_model_id          = "distilbert-base-uncased-finetuned-sst-2-english"
+  hf_task              = "text-classification"
 }
 ```
 
 **examples:**
 * [Deploy Model from hf.co/models](./examples/deploy_from_hub/main.tf)
 * [Deploy Model from Amazon S3](./examples/deploy_from_s3/main.tf)
+* [Deploy Private Models from hf.co/models](./examples/deploy_private_model/main.tf)
 * [Tensorflow example](./examples/tensorflow_example/main.tf)
 * [Deploy Model with existing IAM role](./examples/use_existing_iam_role/main.tf)
-
 ## Requirements
 
 | Name | Version |
@@ -58,7 +58,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_hf_api_token"></a> [hf\_api\_token](#input\_hf\_api\_token) | The HF\_API\_TOKEN environment variable defines the your Hugging Face authorization token. The HF\_API\_TOKEN is used as a HTTP bearer authorization for remote files, like private models. You can find your token at your settings page. | `string` | `null` | no |
 | <a name="input_hf_model_id"></a> [hf\_model\_id](#input\_hf\_model\_id) | The HF\_MODEL\_ID environment variable defines the model id, which will be automatically loaded from [hf.co/models](https://huggingface.co/models) when creating or SageMaker Endpoint. | `string` | `null` | no |
+| <a name="input_hf_model_revision"></a> [hf\_model\_revision](#input\_hf\_model\_revision) | The HF\_MODEL\_REVISION is an extension to HF\_MODEL\_ID and allows you to define/pin a revision of the model to make sure you always load the same model on your SageMaker Endpoint. | `string` | `null` | no |
 | <a name="input_hf_task"></a> [hf\_task](#input\_hf\_task) | The HF\_TASK environment variable defines the task for the used 🤗 Transformers pipeline. A full list of tasks can be find [here](https://huggingface.co/transformers/main_classes/pipelines.html). | `string` | n/a | yes |
 | <a name="input_image_tag"></a> [image\_tag](#input\_image\_tag) | The image tag you want to use for the container you want to use. Defaults to `None`. The module tries to derive the `image_tag` from the `pytorch_version`, `tensorflow_version` & `instance_type`. If you want to override this, you can provide the `image_tag` as a variable. | `string` | `null` | no |
 | <a name="input_instance_count"></a> [instance\_count](#input\_instance\_count) | The initial number of instances to run in the Endpoint created from this Model. Defaults to 1. | `number` | `1` | no |
@@ -82,7 +84,6 @@ No modules.
 | <a name="output_sagemaker_model"></a> [sagemaker\_model](#output\_sagemaker\_model) | created Amazon SageMaker model resource |
 | <a name="output_tags"></a> [tags](#output\_tags) | n/a |
 | <a name="output_used_container"></a> [used\_container](#output\_used\_container) | Used container for creating the endpoint |
-
 
 ## License
 

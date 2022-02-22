@@ -122,8 +122,10 @@ resource "aws_sagemaker_model" "model_with_hub_model" {
     # CPU Image
     image = data.aws_sagemaker_prebuilt_ecr_image.deploy_image.registry_path
     environment = {
-      HF_TASK     = var.hf_task
-      HF_MODEL_ID = var.hf_model_id
+      HF_TASK           = var.hf_task
+      HF_MODEL_ID       = var.hf_model_id
+      HF_API_TOKEN      = var.hf_api_token
+      HF_MODEL_REVISION = var.hf_model_revision
     }
   }
 }
