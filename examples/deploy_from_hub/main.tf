@@ -2,10 +2,10 @@
 # Example Deploy from HuggingFace Hub
 # ---------------------------------------------------------------------------------------------------------------------
 
-provider "aws" {
-  region  = "us-east-1"
-  profile = "hf-sm"
-}
+# provider "aws" {
+#   region  = "us-east-1"
+#   profile = "default"
+# }
 
 module "huggingface_sagemaker" {
   source               = "../../"
