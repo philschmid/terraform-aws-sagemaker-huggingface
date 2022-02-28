@@ -1,16 +1,9 @@
-# ---------------------------------------------------------------------------------------------------------------------
-# Example Deploy from HuggingFace Hub
-# ---------------------------------------------------------------------------------------------------------------------
+# Example: Deploy private model from Hugging Face Hub (hf.co/models)
 
-# Configure the AWS Provider
-# provider "aws" {
-#   region  = "us-east-1"
-#   profile = "default"
-# }
-
-
+```hcl
 module "huggingface_sagemaker" {
-  source = "../../"
+  source                   = "philschmid/sagemaker-huggingface/aws"
+  version                  = "0.3.0"
   name_prefix              = "deploy-private-hub"
   pytorch_version          = "1.9.1"
   transformers_version     = "4.12.3"
@@ -20,3 +13,4 @@ module "huggingface_sagemaker" {
   hf_task                  = "text-classification"
   hf_api_token             = "hf_Xxxx"
 }
+```

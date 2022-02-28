@@ -79,6 +79,43 @@ variable "sagemaker_execution_role" {
   default     = null
 }
 
+variable "autoscaling" {
+  description = "A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required keys are `max_capacity` and `scaling_target_invocations` "
+  type = object({
+    min_capacity               = optional(number),
+    max_capacity               = number,
+    scaling_target_invocations = optional(number),
+    scale_in_cooldown          = optional(number),
+    scale_out_cooldown         = optional(number),
+  })
+
+  default = {
+    min_capacity               = 1
+    max_capacity               = null
+    scaling_target_invocations = null
+    scale_in_cooldown          = 300
+    scale_out_cooldown         = 66
+  }
+}
+
+variable "async_config" {
+  description = "(Optional) Specifies configuration for how an endpoint performs asynchronous inference. Required key is `s3_output_path`, which is the s3 bucket used for async inference."
+  type = object({
+    s3_output_path    = string,
+    kms_key_id        = optional(string),
+    sns_error_topic   = optional(string),
+    sns_success_topic = optional(string),
+  })
+
+  default = {
+    s3_output_path    = null
+    kms_key_id        = null
+    sns_error_topic   = null
+    sns_success_topic = null
+  }
+}
+
+
 
 variable "tags" {
   description = "A map of tags (key-value pairs) passed to resources."
