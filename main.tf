@@ -78,6 +78,7 @@ resource "aws_iam_role" "new_role" {
             "logs:CreateLogGroup",
             "logs:DescribeLogStreams",
             "s3:GetObject",
+            "s3:PutObject",
             "s3:ListBucket",
             "ecr:GetAuthorizationToken",
             "ecr:BatchCheckLayerAvailability",
