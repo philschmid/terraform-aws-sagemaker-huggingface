@@ -46,6 +46,7 @@ module "sagemaker-huggingface" {
 * [Deploy Model from Amazon S3](./examples/deploy_from_s3/main.tf)
 * [Deploy Private Models from hf.co/models](./examples/deploy_private_model/main.tf)
 * [Autoscaling Endpoint](./examples/autoscaling_example/main.tf)
+* [Asynchronous Inference](./examples/async_inference/main.tf)
 * [Tensorflow example](./examples/tensorflow_example/main.tf)
 * [Deploy Model with existing IAM role](./examples/use_existing_iam_role/main.tf)
 ## Requirements
@@ -53,6 +54,7 @@ module "sagemaker-huggingface" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
 
 ## Providers
 
@@ -74,6 +76,7 @@ No modules.
 | [aws_iam_role.new_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_sagemaker_endpoint.huggingface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint) | resource |
 | [aws_sagemaker_endpoint_configuration.huggingface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint_configuration) | resource |
+| [aws_sagemaker_endpoint_configuration.huggingface_async](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint_configuration) | resource |
 | [aws_sagemaker_model.model_with_hub_model](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_model) | resource |
 | [aws_sagemaker_model.model_with_model_artifact](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_model) | resource |
 | [random_string.ressource_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
@@ -84,7 +87,8 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_autoscaling"></a> [autoscaling](#input\_autoscaling) | A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required keys are `max_capacity` and `scaling_target_invocations` | <pre>object({<br>    min_capacity               = number,<br>    max_capacity               = number,<br>    scaling_target_invocations = number,<br>    scale_in_cooldown          = number,<br>    scale_out_cooldown         = number,<br>  })</pre> | <pre>{<br>  "max_capacity": null,<br>  "min_capacity": 1,<br>  "scale_in_cooldown": 300,<br>  "scale_out_cooldown": 60,<br>  "scaling_target_invocations": null<br>}</pre> | no |
+| <a name="input_async_config"></a> [async\_config](#input\_async\_config) | (Optional) Specifies configuration for how an endpoint performs asynchronous inference. Required key is `s3_output_path`, which is the s3 bucket used for async inference. | <pre>object({<br>    s3_output_path    = string,<br>    kms_key_id        = optional(string),<br>    sns_error_topic   = optional(string),<br>    sns_success_topic = optional(string),<br>  })</pre> | <pre>{<br>  "kms_key_id": null,<br>  "s3_output_path": null,<br>  "sns_error_topic": null,<br>  "sns_success_topic": null<br>}</pre> | no |
+| <a name="input_autoscaling"></a> [autoscaling](#input\_autoscaling) | A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required keys are `max_capacity` and `scaling_target_invocations` | <pre>object({<br>    min_capacity               = optional(number),<br>    max_capacity               = number,<br>    scaling_target_invocations = optional(number),<br>    scale_in_cooldown          = optional(number),<br>    scale_out_cooldown         = optional(number),<br>  })</pre> | <pre>{<br>  "max_capacity": null,<br>  "min_capacity": 1,<br>  "scale_in_cooldown": 300,<br>  "scale_out_cooldown": 66,<br>  "scaling_target_invocations": null<br>}</pre> | no |
 | <a name="input_hf_api_token"></a> [hf\_api\_token](#input\_hf\_api\_token) | The HF\_API\_TOKEN environment variable defines the your Hugging Face authorization token. The HF\_API\_TOKEN is used as a HTTP bearer authorization for remote files, like private models. You can find your token at your settings page. | `string` | `null` | no |
 | <a name="input_hf_model_id"></a> [hf\_model\_id](#input\_hf\_model\_id) | The HF\_MODEL\_ID environment variable defines the model id, which will be automatically loaded from [hf.co/models](https://huggingface.co/models) when creating or SageMaker Endpoint. | `string` | `null` | no |
 | <a name="input_hf_model_revision"></a> [hf\_model\_revision](#input\_hf\_model\_revision) | The HF\_MODEL\_REVISION is an extension to HF\_MODEL\_ID and allows you to define/pin a revision of the model to make sure you always load the same model on your SageMaker Endpoint. | `string` | `null` | no |
