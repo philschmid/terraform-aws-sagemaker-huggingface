@@ -3,7 +3,7 @@
 ```hcl
 module "huggingface_sagemaker" {
   source               = "philschmid/sagemaker-huggingface/aws"
-  version              = "0.3.0"
+  version              = "0.4.0"
   name_prefix          = "deploy-hub"
   pytorch_version      = "1.9.1"
   transformers_version = "4.12.3"
