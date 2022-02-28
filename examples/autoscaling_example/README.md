@@ -1,14 +1,9 @@
-# ---------------------------------------------------------------------------------------------------------------------
-# Example Deploy from HuggingFace Hub
-# ---------------------------------------------------------------------------------------------------------------------
+# Example Autoscaling
 
-# provider "aws" {
-#   region  = "us-east-1"
-#   profile = "default"
-# }
-
+```hcl
 module "huggingface_sagemaker" {
-  source               = "../../"
+  source               = "philschmid/sagemaker-huggingface/aws"
+  version              = "0.3.0"
   name_prefix          = "autoscaling"
   pytorch_version      = "1.9.1"
   transformers_version = "4.12.3"
@@ -24,3 +19,4 @@ module "huggingface_sagemaker" {
     scale_out_cooldown         = 60  # The cooldown time after scale-out, default is 60
   }
 }
+```
