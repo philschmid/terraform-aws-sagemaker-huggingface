@@ -42,13 +42,15 @@ module "sagemaker-huggingface" {
 ```
 
 **examples:**
-* [Deploy Model from hf.co/models](./examples/deploy_from_hub/main.tf)
-* [Deploy Model from Amazon S3](./examples/deploy_from_s3/main.tf)
-* [Deploy Private Models from hf.co/models](./examples/deploy_private_model/main.tf)
-* [Autoscaling Endpoint](./examples/autoscaling_example/main.tf)
-* [Asynchronous Inference](./examples/async_inference/main.tf)
-* [Tensorflow example](./examples/tensorflow_example/main.tf)
-* [Deploy Model with existing IAM role](./examples/use_existing_iam_role/main.tf)
+* [Deploy Model from hf.co/models](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/deploy_from_hub)
+* [Deploy Model from Amazon S3](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/deploy_from_s3)
+* [Deploy Private Models from hf.co/models](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/deploy_private_model)
+* [Autoscaling Endpoint](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/autoscaling_example)
+* [Asynchronous Inference](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/async_inference)
+* [Tensorflow example](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/tensorflow_example)
+* [Deploy Model with existing IAM role](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/use_existing_iam_role)
+
+
 ## Requirements
 
 | Name | Version |
