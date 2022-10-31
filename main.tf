@@ -23,6 +23,11 @@ locals {
     "2.5.1-gpu" = "2.5.1-transformers${var.transformers_version}-gpu-py36-cu111-ubuntu18.04"
     "2.5.1-cpu" = "2.5.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
   }
+  sagemaker_endpoint_type = {
+    real_time = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency == null) ? true : false
+    asynchronous = (var.async_config.s3_output_path != null && var.serverless_config.max_concurrency == null) ? true : false
+    serverless = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency != null) ? true : false
+  }
 }
 
 # random lowercase string used for naming
@@ -151,7 +156,7 @@ locals {
 # ------------------------------------------------------------------------------
 
 resource "aws_sagemaker_endpoint_configuration" "huggingface" {
-  count = var.async_config.s3_output_path == null ? 1 : 0
+  count = local.sagemaker_endpoint_type.real_time ? 1 : 0
   name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
   tags  = var.tags
 
@@ -165,10 +170,8 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface" {
 }
 
 
-
-
 resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
-  count = var.async_config.s3_output_path != null ? 1 : 0
+  count = local.sagemaker_endpoint_type.asynchronous ? 1 : 0
   name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
   tags  = var.tags
 
@@ -192,8 +195,35 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
 }
 
 
+resource "aws_sagemaker_endpoint_configuration" "huggingface_serverless" {
+  count = local.sagemaker_endpoint_type.serverless ? 1 : 0
+  name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
+  tags  = var.tags
+
+
+  production_variants {
+    variant_name           = "AllTraffic"
+    model_name             = local.sagemaker_model.name
+
+    serverless_config {
+      max_concurrency   = var.serverless_config.max_concurrency
+      memory_size_in_mb = var.serverless_config.memory_size_in_mb
+    }
+  }
+}
+
+
 locals {
-  sagemaker_endpoint_config = var.async_config.s3_output_path != null ? aws_sagemaker_endpoint_configuration.huggingface_async[0] : aws_sagemaker_endpoint_configuration.huggingface[0]
+  sagemaker_endpoint_config = (
+    local.sagemaker_endpoint_type.real_time ?
+      aws_sagemaker_endpoint_configuration.huggingface[0] : (
+        local.sagemaker_endpoint_type.asynchronous ?
+          aws_sagemaker_endpoint_configuration.huggingface_async[0] : (
+            local.sagemaker_endpoint_type.serverless ?
+              aws_sagemaker_endpoint_configuration.huggingface_serverless[0] : null
+          )
+      )
+  )
 }
 
 # ------------------------------------------------------------------------------
@@ -214,7 +244,7 @@ resource "aws_sagemaker_endpoint" "huggingface" {
 
 
 locals {
-  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.scaling_target_invocations != null ? 1 : 0
+  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.scaling_target_invocations != null && !local.sagemaker_endpoint_type.serverless ? 1 : 0
 }
 
 resource "aws_appautoscaling_target" "sagemaker_target" {

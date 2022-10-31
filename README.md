@@ -47,6 +47,7 @@ module "sagemaker-huggingface" {
 * [Deploy Private Models from hf.co/models](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/deploy_private_model)
 * [Autoscaling Endpoint](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/autoscaling_example)
 * [Asynchronous Inference](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/async_inference)
+* [Serverless Inference](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/serverless_inference)
 * [Tensorflow example](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/tensorflow_example)
 * [Deploy Model with existing IAM role](https://github.com/philschmid/terraform-aws-sagemaker-huggingface/tree/master/examples/use_existing_iam_role)
 
@@ -79,6 +80,7 @@ No modules.
 | [aws_sagemaker_endpoint.huggingface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint) | resource |
 | [aws_sagemaker_endpoint_configuration.huggingface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint_configuration) | resource |
 | [aws_sagemaker_endpoint_configuration.huggingface_async](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint_configuration) | resource |
+| [aws_sagemaker_endpoint_configuration.huggingface_serverless](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_endpoint_configuration) | resource |
 | [aws_sagemaker_model.model_with_hub_model](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_model) | resource |
 | [aws_sagemaker_model.model_with_model_artifact](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sagemaker_model) | resource |
 | [random_string.ressource_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) | resource |
@@ -102,6 +104,7 @@ No modules.
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | A prefix used for naming resources. | `string` | n/a | yes |
 | <a name="input_pytorch_version"></a> [pytorch\_version](#input\_pytorch\_version) | PyTorch version you want to use for executing your inference code. Defaults to `None`. Required unless `tensorflow_version` is provided. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview) | `string` | `null` | no |
 | <a name="input_sagemaker_execution_role"></a> [sagemaker\_execution\_role](#input\_sagemaker\_execution\_role) | An AWS IAM role Name to access training data and model artifacts. After the endpoint is created, the inference code might use the IAM role if it needs to access some AWS resources. If not specified, the role will created with with the `CreateModel` permissions from the [documentation](https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-roles.html#sagemaker-roles-createmodel-perms) | `string` | `null` | no |
+| <a name="input_serverless_config"></a> [serverless\_config](#input\_serverless\_config) | (Optional) Specifies configuration for how an endpoint performs serverless inference. Required keys are `max_concurrency` and `memory_size_in_mb` | <pre>object({<br>    max_concurrency   = number,<br>    memory_size_in_mb = number<br>})</pre> | <pre>{<br>  "max_concurrency": null,<br>  "memory_size_in_mb": null<br>}</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags (key-value pairs) passed to resources. | `map(string)` | `{}` | no |
 | <a name="input_tensorflow_version"></a> [tensorflow\_version](#input\_tensorflow\_version) | TensorFlow version you want to use for executing your inference code. Defaults to `None`. Required unless `pytorch_version` is provided. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview) | `string` | `null` | no |
 | <a name="input_transformers_version"></a> [transformers\_version](#input\_transformers\_version) | Transformers version you want to use for executing your model training code. Defaults to None. [List of supported versions](https://huggingface.co/docs/sagemaker/reference#inference-dlc-overview) | `string` | n/a | yes |
