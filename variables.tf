@@ -126,16 +126,6 @@ variable "serverless_config" {
     max_concurrency   = null
     memory_size_in_mb = null
   }
-
-  validation {
-    condition     = contains([1024, 2048, 3072, 4096, 5120, 6144], var.serverless_config.memory_size_in_mb)
-    error_message = "`memory_size_in_mb` allowed values: `1024`, `2048`, `3072`, `4096`, `5120` or `6144`"
-  }
-
-  validation {
-    condition     = var.serverless_config.max_concurrency >= 1 && var.serverless_config.max_concurrency <= 200
-    error_message = "`max_concurrency` valid values are between `1` and `200`"
-  }
 }
 
 
