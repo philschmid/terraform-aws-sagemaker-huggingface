@@ -115,6 +115,18 @@ variable "async_config" {
   }
 }
 
+variable "serverless_config" {
+  description = "(Optional) Specifies configuration for how an endpoint performs serverless inference. Required keys are `max_concurrency` and `memory_size_in_mb`"
+  type = object({
+    max_concurrency   = number,
+    memory_size_in_mb = number
+  })
+
+  default = {
+    max_concurrency   = null
+    memory_size_in_mb = null
+  }
+}
 
 
 variable "tags" {
