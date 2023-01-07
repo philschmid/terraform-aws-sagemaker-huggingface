@@ -36,7 +36,7 @@ resource "random_string" "ressource_id" {
   lower   = true
   special = false
   upper   = false
-  number  = false
+  numeric  = false
 }
 
 # ------------------------------------------------------------------------------
