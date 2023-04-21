@@ -16,6 +16,8 @@ locals {
     "1.8.1-cpu" = "1.8.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
     "1.9.1-gpu" = "1.9.1-transformers${var.transformers_version}-gpu-py38-cu111-ubuntu20.04"
     "1.9.1-cpu" = "1.9.1-transformers${var.transformers_version}-cpu-py38-ubuntu20.04"
+    "1.13-cpu" = "1.13-transformers${var.transformers_version}-cpu-py39-ubuntu20.04"
+    "1.13-gpu" = "1.13-transformers${var.transformers_version}-gpu-py39-cu117-ubuntu20.04"
   }
   tensorflow_image_tag = {
     "2.4.1-gpu" = "2.4.1-transformers${var.transformers_version}-gpu-py37-cu110-ubuntu18.04"
