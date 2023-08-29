@@ -246,7 +246,7 @@ resource "aws_sagemaker_endpoint" "huggingface" {
 
 
 locals {
-  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.scaling_target_invocations != null && !local.sagemaker_endpoint_type.serverless ? 1 : 0
+  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.target_value != null && !local.sagemaker_endpoint_type.serverless ? 1 : 0
 }
 
 resource "aws_appautoscaling_target" "sagemaker_target" {
@@ -268,9 +268,9 @@ resource "aws_appautoscaling_policy" "sagemaker_policy" {
 
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
-      predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
+      predefined_metric_type = var.autoscaling.predefined_metric_type
     }
-    target_value       = var.autoscaling.scaling_target_invocations
+    target_value       = var.autoscaling.target_value
     scale_in_cooldown  = var.autoscaling.scale_in_cooldown
     scale_out_cooldown = var.autoscaling.scale_out_cooldown
   }

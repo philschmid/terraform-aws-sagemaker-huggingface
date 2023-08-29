@@ -80,21 +80,23 @@ variable "sagemaker_execution_role" {
 }
 
 variable "autoscaling" {
-  description = "A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required keys are `max_capacity` and `scaling_target_invocations` "
+  description = "A Object which defines the autoscaling target and policy for our SageMaker Endpoint. Required key is `max_capacity`"
   type = object({
-    min_capacity               = optional(number),
-    max_capacity               = number,
-    scaling_target_invocations = optional(number),
-    scale_in_cooldown          = optional(number),
-    scale_out_cooldown         = optional(number),
+    min_capacity           = optional(number),
+    max_capacity           = number,
+    target_value           = optional(number),
+    scale_in_cooldown      = optional(number),
+    scale_out_cooldown     = optional(number),
+    predefined_metric_type = optional(string)
   })
 
   default = {
-    min_capacity               = 1
-    max_capacity               = null
-    scaling_target_invocations = null
-    scale_in_cooldown          = 300
-    scale_out_cooldown         = 66
+    min_capacity           = 1
+    max_capacity           = null
+    target_value           = null
+    scale_in_cooldown      = 300
+    scale_out_cooldown     = 66
+    predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
   }
 }
 

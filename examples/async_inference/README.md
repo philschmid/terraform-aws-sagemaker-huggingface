@@ -25,9 +25,10 @@ module "huggingface_sagemaker" {
     # sns_success_topic = "arn:aws:sns:aws-region:account-id:topic-name"
   }
   autoscaling = {
-    min_capacity               = 0
-    max_capacity               = 4
-    scaling_target_invocations = 100
+    min_capacity           = 0
+    max_capacity           = 4
+    target_value           = 100
+    predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
   }
 }
 ```
