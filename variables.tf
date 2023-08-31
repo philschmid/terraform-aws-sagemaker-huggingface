@@ -87,7 +87,10 @@ variable "autoscaling" {
     target_value           = optional(number),
     scale_in_cooldown      = optional(number),
     scale_out_cooldown     = optional(number),
-    predefined_metric_type = optional(string)
+    customized_metric      = optional(object({
+      metric_name = string
+      statistic   = string
+    }))
   })
 
   default = {
@@ -96,7 +99,7 @@ variable "autoscaling" {
     target_value           = null
     scale_in_cooldown      = 300
     scale_out_cooldown     = 66
-    predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
+    customized_metric      = null
   }
 }
 

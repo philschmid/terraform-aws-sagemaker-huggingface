@@ -25,10 +25,14 @@ module "huggingface_sagemaker" {
     # sns_success_topic = "arn:aws:sns:aws-region:account-id:topic-name"
   }
   autoscaling = {
-    min_capacity           = 0
-    max_capacity           = 4
-    target_value           = 100
-    predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
+    min_capacity      = 0
+    max_capacity      = 1
+    target_value      = 0.5
+    # for using customized metric https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference-monitor.html#async-inference-monitor-cloudwatch-async
+    # customized_metric = {
+    #   metric_name = "HasBacklogWithoutCapacity"
+    #   statistic   = "Maximum"
+    # }
   }
 }
 ```

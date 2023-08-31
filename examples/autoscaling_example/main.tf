@@ -22,6 +22,5 @@ module "huggingface_sagemaker" {
     target_value           = 200 # The scaling target invocations (requests/minute)
     scale_in_cooldown      = 300 # The cooldown time after scale-in, default is 300
     scale_out_cooldown     = 60  # The cooldown time after scale-out, default is 60
-    predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
   }
 }
