@@ -246,7 +246,9 @@ resource "aws_sagemaker_endpoint" "huggingface" {
 
 
 locals {
-  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.scaling_target_invocations != null && !local.sagemaker_endpoint_type.serverless ? 1 : 0
+  use_autoscaling = var.autoscaling.max_capacity != null && var.autoscaling.target_value != null && !local.sagemaker_endpoint_type.serverless ? 1 : 0
+  use_predefined_metric = local.use_autoscaling != 0 && var.autoscaling.customized_metric == null ? 1 : 0
+  use_customized_metric = local.use_autoscaling != 0 && var.autoscaling.customized_metric != null ? 1 : 0
 }
 
 resource "aws_appautoscaling_target" "sagemaker_target" {
@@ -259,7 +261,7 @@ resource "aws_appautoscaling_target" "sagemaker_target" {
 }
 
 resource "aws_appautoscaling_policy" "sagemaker_policy" {
-  count              = local.use_autoscaling
+  count              = local.use_predefined_metric
   name               = "${var.name_prefix}-scaling-target-${random_string.ressource_id.result}"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.sagemaker_target[0].resource_id
@@ -270,7 +272,31 @@ resource "aws_appautoscaling_policy" "sagemaker_policy" {
     predefined_metric_specification {
       predefined_metric_type = "SageMakerVariantInvocationsPerInstance"
     }
-    target_value       = var.autoscaling.scaling_target_invocations
+    target_value       = var.autoscaling.target_value
+    scale_in_cooldown  = var.autoscaling.scale_in_cooldown
+    scale_out_cooldown = var.autoscaling.scale_out_cooldown
+  }
+}
+
+resource "aws_appautoscaling_policy" "sagemaker_custom_policy" {
+  count              = local.use_customized_metric
+  name               = "${var.name_prefix}-scaling-target-${random_string.ressource_id.result}"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.sagemaker_target[0].resource_id
+  scalable_dimension = aws_appautoscaling_target.sagemaker_target[0].scalable_dimension
+  service_namespace  = aws_appautoscaling_target.sagemaker_target[0].service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    customized_metric_specification {
+      metric_name = var.autoscaling.customized_metric.metric_name
+      namespace   = "AWS/SageMaker"
+      statistic   = var.autoscaling.customized_metric.statistic
+      dimensions {
+        name  = "EndpointName"
+        value = aws_sagemaker_endpoint.huggingface.name
+      }
+    }
+    target_value       = var.autoscaling.target_value
     scale_in_cooldown  = var.autoscaling.scale_in_cooldown
     scale_out_cooldown = var.autoscaling.scale_out_cooldown
   }
