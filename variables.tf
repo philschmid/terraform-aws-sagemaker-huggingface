@@ -102,6 +102,7 @@ variable "async_config" {
   description = "(Optional) Specifies configuration for how an endpoint performs asynchronous inference. Required key is `s3_output_path`, which is the s3 bucket used for async inference."
   type = object({
     s3_output_path    = string,
+    s3_failure_path   = optional(string),
     kms_key_id        = optional(string),
     sns_error_topic   = optional(string),
     sns_success_topic = optional(string),

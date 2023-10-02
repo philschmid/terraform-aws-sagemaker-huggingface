@@ -186,12 +186,13 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
   }
   async_inference_config {
     output_config {
-      s3_output_path = var.async_config.s3_output_path
-      kms_key_id     = var.async_config.kms_key_id
-      # notification_config {
-      #   error_topic   = var.async_config.sns_error_topic
-      #   success_topic = var.async_config.sns_success_topic
-      # }
+      s3_output_path  = var.async_config.s3_output_path
+      s3_failure_path = var.async_config.s3_failure_path
+      kms_key_id      = var.async_config.kms_key_id
+      notification_config {
+        error_topic   = var.async_config.sns_error_topic
+        success_topic = var.async_config.sns_success_topic
+      }
     }
   }
 }
