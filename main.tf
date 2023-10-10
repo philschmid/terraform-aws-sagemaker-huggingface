@@ -10,14 +10,18 @@ locals {
   device            = length(regexall("^ml\\.[g|p{1,3}\\.$]", var.instance_type)) > 0 ? "gpu" : "cpu"
   image_key         = "${local.framework_version}-${local.device}"
   pytorch_image_tag = {
-    "1.7.1-gpu" = "1.7.1-transformers${var.transformers_version}-gpu-py36-cu110-ubuntu18.04"
-    "1.7.1-cpu" = "1.7.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
-    "1.8.1-gpu" = "1.8.1-transformers${var.transformers_version}-gpu-py36-cu111-ubuntu18.04"
-    "1.8.1-cpu" = "1.8.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
-    "1.9.1-gpu" = "1.9.1-transformers${var.transformers_version}-gpu-py38-cu111-ubuntu20.04"
-    "1.9.1-cpu" = "1.9.1-transformers${var.transformers_version}-cpu-py38-ubuntu20.04"
+    "1.7.1-gpu"  = "1.7.1-transformers${var.transformers_version}-gpu-py36-cu110-ubuntu18.04"
+    "1.7.1-cpu"  = "1.7.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
+    "1.8.1-gpu"  = "1.8.1-transformers${var.transformers_version}-gpu-py36-cu111-ubuntu18.04"
+    "1.8.1-cpu"  = "1.8.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
+    "1.9.1-gpu"  = "1.9.1-transformers${var.transformers_version}-gpu-py38-cu111-ubuntu20.04"
+    "1.9.1-cpu"  = "1.9.1-transformers${var.transformers_version}-cpu-py38-ubuntu20.04"
+    "1.10.2-cpu" = "1.10.2-transformers${var.transformers_version}-cpu-py38-ubuntu20.04"
+    "1.10.2-gpu" = "1.10.2-transformers${var.transformers_version}-gpu-py38-cu113-ubuntu20.04"
     "1.13.1-cpu" = "1.13.1-transformers${var.transformers_version}-cpu-py39-ubuntu20.04"
     "1.13.1-gpu" = "1.13.1-transformers${var.transformers_version}-gpu-py39-cu117-ubuntu20.04"
+    "2.0.0-cpu"  = "2.0.0-transformers${var.transformers_version}-cpu-py310-ubuntu20.04"
+    "2.0.0-gpu"  = "2.0.0-transformers${var.transformers_version}-gpu-py310-cu118-ubuntu20.04"
   }
   tensorflow_image_tag = {
     "2.4.1-gpu" = "2.4.1-transformers${var.transformers_version}-gpu-py37-cu110-ubuntu18.04"
@@ -26,9 +30,9 @@ locals {
     "2.5.1-cpu" = "2.5.1-transformers${var.transformers_version}-cpu-py36-ubuntu18.04"
   }
   sagemaker_endpoint_type = {
-    real_time = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency == null) ? true : false
+    real_time    = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency == null) ? true : false
     asynchronous = (var.async_config.s3_output_path != null && var.serverless_config.max_concurrency == null) ? true : false
-    serverless = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency != null) ? true : false
+    serverless   = (var.async_config.s3_output_path == null && var.serverless_config.max_concurrency != null) ? true : false
   }
 }
 
@@ -38,7 +42,7 @@ resource "random_string" "ressource_id" {
   lower   = true
   special = false
   upper   = false
-  numeric  = false
+  numeric = false
 }
 
 # ------------------------------------------------------------------------------
@@ -108,7 +112,8 @@ data "aws_iam_role" "get_role" {
 }
 
 locals {
-  role_arn = var.sagemaker_execution_role != null ? data.aws_iam_role.get_role[0].arn : aws_iam_role.new_role[0].arn
+  role_arn   = var.sagemaker_execution_role != null ? data.aws_iam_role.get_role[0].arn : aws_iam_role.new_role[0].arn
+  model_slug = replace(reverse(split("/", replace(var.model_data, ".tar.gz", "")))[0], ".", "-")
 }
 
 # ------------------------------------------------------------------------------
@@ -117,7 +122,7 @@ locals {
 
 resource "aws_sagemaker_model" "model_with_model_artifact" {
   count              = var.model_data != null && var.hf_model_id == null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}"
+  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}-${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -129,12 +134,16 @@ resource "aws_sagemaker_model" "model_with_model_artifact" {
       HF_TASK = var.hf_task
     }
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 
 resource "aws_sagemaker_model" "model_with_hub_model" {
   count              = var.model_data == null && var.hf_model_id != null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}"
+  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}-${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -146,6 +155,10 @@ resource "aws_sagemaker_model" "model_with_hub_model" {
       HF_API_TOKEN      = var.hf_api_token
       HF_MODEL_REVISION = var.hf_model_revision
     }
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -186,12 +199,13 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
   }
   async_inference_config {
     output_config {
-      s3_output_path = var.async_config.s3_output_path
-      kms_key_id     = var.async_config.kms_key_id
-      # notification_config {
-      #   error_topic   = var.async_config.sns_error_topic
-      #   success_topic = var.async_config.sns_success_topic
-      # }
+      s3_output_path  = var.async_config.s3_output_path
+      s3_failure_path = var.async_config.s3_failure_path
+      kms_key_id      = var.async_config.kms_key_id
+      notification_config {
+        error_topic   = var.async_config.sns_error_topic
+        success_topic = var.async_config.sns_success_topic
+      }
     }
   }
 }
@@ -204,8 +218,8 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_serverless" {
 
 
   production_variants {
-    variant_name           = "AllTraffic"
-    model_name             = local.sagemaker_model.name
+    variant_name = "AllTraffic"
+    model_name   = local.sagemaker_model.name
 
     serverless_config {
       max_concurrency   = var.serverless_config.max_concurrency
@@ -218,13 +232,13 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_serverless" {
 locals {
   sagemaker_endpoint_config = (
     local.sagemaker_endpoint_type.real_time ?
-      aws_sagemaker_endpoint_configuration.huggingface[0] : (
-        local.sagemaker_endpoint_type.asynchronous ?
-          aws_sagemaker_endpoint_configuration.huggingface_async[0] : (
-            local.sagemaker_endpoint_type.serverless ?
-              aws_sagemaker_endpoint_configuration.huggingface_serverless[0] : null
-          )
+    aws_sagemaker_endpoint_configuration.huggingface[0] : (
+      local.sagemaker_endpoint_type.asynchronous ?
+      aws_sagemaker_endpoint_configuration.huggingface_async[0] : (
+        local.sagemaker_endpoint_type.serverless ?
+        aws_sagemaker_endpoint_configuration.huggingface_serverless[0] : null
       )
+    )
   )
 }
 
