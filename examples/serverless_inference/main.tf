@@ -11,8 +11,8 @@ module "huggingface_sagemaker" {
   hf_task              = "text-classification"
   instance_type        = "gpu"
   region               = "us-east-1"
-  serverless_config    = {
-      max_concurrency   = 1
-      memory_size_in_mb = 1024
+  serverless_config = {
+    max_concurrency   = 1
+    memory_size_in_mb = 1024
   }
 }
