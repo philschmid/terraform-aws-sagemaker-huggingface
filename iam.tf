@@ -2,8 +2,7 @@
 # Permission
 # ------------------------------------------------------------------------------
 
-resource "aws_iam_role" "new_role" {
-  count = var.sagemaker_execution_role == null ? 1 : 0 # Creates IAM role if not provided
+resource "aws_iam_role" "sagemaker_execution_role" {
   name  = "${var.name_prefix}-sagemaker-execution-role-${random_string.ressource_id.result}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -49,11 +48,4 @@ resource "aws_iam_role" "new_role" {
   tags = var.tags
 }
 
-data "aws_iam_role" "get_role" {
-  count = var.sagemaker_execution_role != null ? 1 : 0 # Creates IAM role if not provided
-  name  = var.sagemaker_execution_role
-}
 
-locals {
-  role_arn = var.sagemaker_execution_role != null ? data.aws_iam_role.get_role[0].arn : aws_iam_role.new_role[0].arn
-}

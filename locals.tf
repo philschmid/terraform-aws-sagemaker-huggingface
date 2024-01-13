@@ -3,7 +3,6 @@
 # ------------------------------------------------------------------------------
 
 locals {
-    role_arn = var.sagemaker_execution_role != null ? data.aws_iam_role.get_role[0].arn : aws_iam_role.new_role[0].arn
     framework_version = var.pytorch_version != null ? var.pytorch_version : var.tensorflow_version
     repository_name   = var.pytorch_version != null ? "huggingface-pytorch-inference" : "huggingface-tensorflow-inference"
     device            = length(regexall("^ml\\.[g|p{1,3}\\.$]", var.instance_type)) > 0 ? "gpu" : "cpu"

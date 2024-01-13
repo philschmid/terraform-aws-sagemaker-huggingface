@@ -3,12 +3,12 @@
 # ---------------------------------------------------------------------------------------------------------------------
 
 module "huggingface_sagemaker" {
-  source               = "../../"
-  name_prefix          = "deploy-hub"
+  source               = "../.."
+  name_prefix          = "sdxl-turbo"
   pytorch_version      = "1.9.1"
   transformers_version = "4.12.3"
-  hf_model_id          = "distilbert-base-uncased-finetuned-sst-2-english"
-  hf_task              = "text-classification"
+  hf_model_id          = "stabilityai/sdxl-turbo"
+  hf_task              = "text-to-image"
   instance_type        = "gpu"
   region               = "us-east-1"
   serverless_config = {
