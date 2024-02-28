@@ -37,7 +37,7 @@ locals {
 }
 
 # random lowercase string used for naming
-resource "random_string" "ressource_id" {
+resource "random_string" "resource_id" {
   length  = 8
   lower   = true
   special = false
@@ -61,7 +61,7 @@ data "aws_sagemaker_prebuilt_ecr_image" "deploy_image" {
 
 resource "aws_iam_role" "new_role" {
   count = var.sagemaker_execution_role == null ? 1 : 0 # Creates IAM role if not provided
-  name  = "${var.name_prefix}-sagemaker-execution-role-${random_string.ressource_id.result}"
+  name  = "${var.name_prefix}-sagemaker-execution-role-${random_string.resource_id.result}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -122,7 +122,7 @@ locals {
 
 resource "aws_sagemaker_model" "model_with_model_artifact" {
   count              = var.model_data != null && var.hf_model_id == null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}-${local.model_slug}"
+  name               = "${var.name_prefix}-model-${random_string.resource_id.result}-${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -143,7 +143,7 @@ resource "aws_sagemaker_model" "model_with_model_artifact" {
 
 resource "aws_sagemaker_model" "model_with_hub_model" {
   count              = var.model_data == null && var.hf_model_id != null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.ressource_id.result}-${local.model_slug}"
+  name               = "${var.name_prefix}-model-${random_string.resource_id.result}-${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -172,7 +172,7 @@ locals {
 
 resource "aws_sagemaker_endpoint_configuration" "huggingface" {
   count = local.sagemaker_endpoint_type.real_time ? 1 : 0
-  name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
+  name  = "${var.name_prefix}-ep-config-${random_string.resource_id.result}"
   tags  = var.tags
 
 
@@ -187,7 +187,7 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface" {
 
 resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
   count = local.sagemaker_endpoint_type.asynchronous ? 1 : 0
-  name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
+  name  = "${var.name_prefix}-ep-config-${random_string.resource_id.result}"
   tags  = var.tags
 
 
@@ -213,7 +213,7 @@ resource "aws_sagemaker_endpoint_configuration" "huggingface_async" {
 
 resource "aws_sagemaker_endpoint_configuration" "huggingface_serverless" {
   count = local.sagemaker_endpoint_type.serverless ? 1 : 0
-  name  = "${var.name_prefix}-ep-config-${random_string.ressource_id.result}"
+  name  = "${var.name_prefix}-ep-config-${random_string.resource_id.result}"
   tags  = var.tags
 
 
@@ -248,7 +248,7 @@ locals {
 
 
 resource "aws_sagemaker_endpoint" "huggingface" {
-  name = "${var.name_prefix}-ep-${random_string.ressource_id.result}"
+  name = "${var.name_prefix}-ep-${random_string.resource_id.result}"
   tags = var.tags
 
   endpoint_config_name = local.sagemaker_endpoint_config.name
@@ -274,7 +274,7 @@ resource "aws_appautoscaling_target" "sagemaker_target" {
 
 resource "aws_appautoscaling_policy" "sagemaker_policy" {
   count              = local.use_autoscaling
-  name               = "${var.name_prefix}-scaling-target-${random_string.ressource_id.result}"
+  name               = "${var.name_prefix}-scaling-target-${random_string.resource_id.result}"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.sagemaker_target[0].resource_id
   scalable_dimension = aws_appautoscaling_target.sagemaker_target[0].scalable_dimension
