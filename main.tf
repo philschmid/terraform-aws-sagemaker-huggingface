@@ -113,7 +113,7 @@ data "aws_iam_role" "get_role" {
 
 locals {
   role_arn   = var.sagemaker_execution_role != null ? data.aws_iam_role.get_role[0].arn : aws_iam_role.new_role[0].arn
-  model_slug = replace(reverse(split("/", replace(var.model_data, ".tar.gz", "")))[0], ".", "-")
+  model_slug = var.model_data != null ? "-${replace(reverse(split("/", replace(var.model_data, ".tar.gz", "")))[0], ".", "-")}" : ""
 }
 
 # ------------------------------------------------------------------------------
@@ -122,7 +122,7 @@ locals {
 
 resource "aws_sagemaker_model" "model_with_model_artifact" {
   count              = var.model_data != null && var.hf_model_id == null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.resource_id.result}-${local.model_slug}"
+  name               = "${var.name_prefix}-model-${random_string.resource_id.result}${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
@@ -143,7 +143,7 @@ resource "aws_sagemaker_model" "model_with_model_artifact" {
 
 resource "aws_sagemaker_model" "model_with_hub_model" {
   count              = var.model_data == null && var.hf_model_id != null ? 1 : 0
-  name               = "${var.name_prefix}-model-${random_string.resource_id.result}-${local.model_slug}"
+  name               = "${var.name_prefix}-model-${random_string.resource_id.result}${local.model_slug}"
   execution_role_arn = local.role_arn
   tags               = var.tags
 
